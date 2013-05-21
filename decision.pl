@@ -66,18 +66,16 @@ prochaineCase(Scenario, [FromX, FromY], 4, [FromX, ToY]):- FromY < 15, ToY is Fr
 prochaineCase(Scenario, [FromX, FromY], 2, [FromX, ToY]):- FromY > 0, ToY is FromY - 1, not(obstacleVertical(Scenario, [FromX, ToY])).
 
 
-possibilites(Scenario, RobotsPos, [FromX, FromY], PosDirectes, Pos1Robot, Pos2Robots).
+% possibilites(Scenario, RobotsPos, [FromX, FromY], PosDirectes, Pos1Robot, Pos2Robots).
 
-destination(Scenario, RobotsPos, [FromX, FromY], Dir, [ToX, ToY]):- prochaineCase(Scenario, [FromX, FromY], Dir, [TempX, TempY]), 
-																	member([TempX, TempY], RobotsPos),
-																	destination(Scenario, RobotsPos, [TempX, TempY], Dir, [ToX, ToY]).
 
-destination(Scenario, RobotsPos, [FromX, FromY], Dir, [ToX, ToY]):- prochaineCase(Scenario, [FromX, FromY], Dir, [TempX, TempY]), 
-																	not(member([TempX, TempY], RobotsPos)),
-																	!, 
-																	destination(Scenario, RobotsPos, [TempX, TempY], Dir, [ToX, ToY]).
+destination(Scenario, _, From, Dir, From):- not(prochaineCase(Scenario, From, Dir, _)).
 
-destination(Scenario, RobotsPos, [FromX, FromY], Dir, [FromX, FromY]).
+destination(Scenario, RobotsPos, From, Dir, From):- prochaineCase(Scenario, From, Dir, To),
+													member(To, RobotsPos).
+
+destination(Scenario, RobotsPos, From, Dir, To):- prochaineCase(Scenario, From, Dir, Temp),
+																	destination(Scenario, RobotsPos, Temp, Dir, To).
 
 destinations(Scenario, RobotsPos, From, Dir, Tos):- bagof(To, destination(Scenario, RobotsPos, From, Dir, To), Tos).
 
