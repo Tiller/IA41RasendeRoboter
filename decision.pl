@@ -15,6 +15,7 @@ listeCibles([1,1,0,1], [[3,7],[5,6],[12,9],[11,2],[6,13],[13,6],[1,3],[1,10],[14
 listeCibles([1,1,1,0], [[3,7],[5,6],[9,10],[11,2],[3,9],[13,6],[1,3],[6,14],[14,13],[1,13],[10,7],[9,14],[6,4],[12,9],[5,11],[2,1],[14,1]]).
 listeCibles([1,1,1,1], [[3,7],[5,6],[12,9],[11,2],[3,9],[13,6],[1,3],[6,14],[14,13],[1,13],[10,7],[9,12],[6,4],[11,14],[5,11],[2,1],[14,1]]).
 
+% Cases having an obstacle to their right
 listeObstaclesHorizontaux([0,0,0,0], [[3,0],[10,0],[9,1],[5,1],[11,2],[1,3],[2,5],[4,4],[7,5],[12,5],[12,9],[9,7],[6,7],[6,8],[8,7],[8,8],[8,10],[3,9],[1,10],[2,14],[3,15],[5,13],[8,14],[10,15],[14,13]]).
 listeObstaclesHorizontaux([0,0,0,1], [[3,0],[5,1],[9,1],[10,0],[11,2],[1,3],[4,4],[12,5],[7,5],[2,5],[6,7],[6,8],[8,7],[8,8],[9,7],[12,9],[3,9],[1,10],[5,13],[2,14],[3,15],[8,12],[11,14],[13,13],[13,15]]).
 listeObstaclesHorizontaux([0,0,1,0], [[3,0],[5,1],[9,1],[10,0],[11,2],[1,3],[4,4],[2,5],[12,5],[9,7],[8,7],[8,8],[6,7],[6,8],[3,9],[4,11],[0,13],[4,15],[6,14],[8,14],[10,15],[8,10],[12,9],[14,13],[7,5]]).
@@ -32,6 +33,7 @@ listeObstaclesHorizontaux([1,1,0,1], [[4,0],[9,0],[10,2],[13,1],[13,6],[10,7],[5
 listeObstaclesHorizontaux([1,1,1,0], [[4,0],[2,1],[0,3],[5,4],[5,6],[3,7],[3,9],[0,13],[4,15],[6,14],[4,11],[8,10],[8,14],[10,15],[14,13],[12,9],[10,7],[13,6],[13,1],[10,2],[9,0],[6,7],[6,8],[8,7],[8,8]]).
 listeObstaclesHorizontaux([1,1,1,1], [[2,1],[4,0],[0,3],[5,4],[5,6],[9,0],[10,2],[13,1],[13,6],[10,7],[12,9],[13,13],[13,15],[11,14],[8,12],[6,14],[4,15],[4,11],[3,9],[0,13],[3,7],[6,7],[6,8],[8,7],[8,8]]).
 
+% Cases having an obstacle to their bottom
 listeObstaclesVerticaux([0,0,0,0], [[0,3],[0,6],[1,2],[6,1],[9,0],[11,2],[15,3],[13,5],[15,9],[10,6],[12,8],[7,5],[5,3],[2,5],[4,9],[9,10],[14,13],[9,13],[6,12],[2,14],[1,9],[7,6],[8,6],[7,8],[8,8]]).
 listeObstaclesVerticaux([0,0,0,1], [[9,0],[15,1],[6,1],[11,2],[15,3],[5,3],[0,3],[1,2],[2,5],[7,5],[13,5],[10,6],[8,6],[7,6],[0,6],[7,8],[8,8],[12,8],[4,9],[1,9],[2,14],[6,12],[9,11],[11,14],[14,13]]).
 listeObstaclesVerticaux([0,0,1,0], [[6,1],[9,0],[11,2],[15,3],[13,5],[7,5],[5,3],[1,2],[0,2],[2,5],[0,6],[7,6],[8,6],[7,8],[8,8],[9,10],[15,9],[12,8],[10,6],[14,13],[9,13],[6,13],[5,10],[3,9],[1,13]]).
@@ -49,33 +51,32 @@ listeObstaclesVerticaux([1,1,0,1], [[0,3],[1,3],[0,4],[2,1],[6,3],[11,2],[15,1],
 listeObstaclesVerticaux([1,1,1,0], [[7,8],[8,8],[7,6],[8,6],[2,1],[0,2],[1,3],[0,4],[6,3],[11,2],[14,0],[15,3],[15,9],[12,8],[13,6],[10,6],[14,13],[9,13],[9,10],[6,13],[5,10],[1,13],[3,7],[3,9],[5,5]]).
 listeObstaclesVerticaux([1,1,1,1], [[0,2],[1,3],[2,1],[6,3],[0,4],[3,7],[5,5],[3,9],[5,10],[1,13],[6,13],[9,11],[11,14],[14,13],[12,8],[10,6],[13,6],[15,3],[15,1],[14,0],[11,2],[7,6],[8,6],[7,8],[8,8]]).
 
-
 obstacleHorizontal(Scenario, Pos):- listeObstaclesHorizontaux(Scenario, L), member(Pos, L).
 obstacleVertical(Scenario, Pos):- listeObstaclesVerticaux(Scenario, L), member(Pos, L).
 
-% droite
-prochaineCase(Scenario, [FromX, FromY], 1, [ToX, FromY]):- FromX < 15, ToX is FromX + 1, not(obstacleHorizontal(Scenario, [FromX, FromY])).
-
-% gauche
-prochaineCase(Scenario, [FromX, FromY], 3, [ToX, FromY]):- FromX > 0, ToX is FromX - 1, not(obstacleHorizontal(Scenario, [ToX, FromY])).
-
-% bas
-prochaineCase(Scenario, [FromX, FromY], 4, [FromX, ToY]):- FromY < 15, ToY is FromY + 1, not(obstacleVertical(Scenario, [FromX, FromY])).
-
-% haut
-prochaineCase(Scenario, [FromX, FromY], 2, [FromX, ToY]):- FromY > 0, ToY is FromY - 1, not(obstacleVertical(Scenario, [FromX, ToY])).
+direction(0, right).
+direction(1, left).
+direction(2, down).
+direction(3, up).
 
 
-% possibilites(Scenario, RobotsPos, [FromX, FromY], PosDirectes, Pos1Robot, Pos2Robots).
+prochaineCase(Scenario, [FromX, FromY], right, [ToX, FromY]):- FromX < 15, ToX is FromX + 1, not(obstacleHorizontal(Scenario, [FromX, FromY])).
+prochaineCase(Scenario, [FromX, FromY], left, [ToX, FromY]):- FromX > 0, ToX is FromX - 1, not(obstacleHorizontal(Scenario, [ToX, FromY])).
+prochaineCase(Scenario, [FromX, FromY], down, [FromX, ToY]):- FromY < 15, ToY is FromY + 1, not(obstacleVertical(Scenario, [FromX, FromY])).
+prochaineCase(Scenario, [FromX, FromY], up, [FromX, ToY]):- FromY > 0, ToY is FromY - 1, not(obstacleVertical(Scenario, [FromX, ToY])).
 
 
 destination(Scenario, _, From, Dir, From):- not(prochaineCase(Scenario, From, Dir, _)).
 destination(Scenario, RobotsPos, From, Dir, From):- prochaineCase(Scenario, From, Dir, To), member(To, RobotsPos).
 destination(Scenario, RobotsPos, From, Dir, To):- prochaineCase(Scenario, From, Dir, Temp), destination(Scenario, RobotsPos, Temp, Dir, To).
 
-
 destinations(Scenario, RobotsPos, From, Dir, Tos):- bagof(To, destination(Scenario, RobotsPos, From, Dir, To), Tos).
 
+
+
+
+
+% possibilites(Scenario, RobotsPos, [FromX, FromY], PosDirectes, Pos1Robot, Pos2Robots).
 
 
 
