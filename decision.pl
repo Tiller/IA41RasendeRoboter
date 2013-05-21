@@ -75,9 +75,10 @@ destination(Scenario, RobotsPos, From, Dir, From):- prochaineCase(Scenario, From
 													member(To, RobotsPos).
 
 destination(Scenario, RobotsPos, From, Dir, To):- prochaineCase(Scenario, From, Dir, Temp),
-																	destination(Scenario, RobotsPos, Temp, Dir, To).
+												  destination(Scenario, RobotsPos, Temp, Dir, To).
 
 destinations(Scenario, RobotsPos, From, Dir, Tos):- bagof(To, destination(Scenario, RobotsPos, From, Dir, To), Tos).
+
 
 
 
