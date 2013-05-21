@@ -70,12 +70,9 @@ prochaineCase(Scenario, [FromX, FromY], 2, [FromX, ToY]):- FromY > 0, ToY is Fro
 
 
 destination(Scenario, _, From, Dir, From):- not(prochaineCase(Scenario, From, Dir, _)).
+destination(Scenario, RobotsPos, From, Dir, From):- prochaineCase(Scenario, From, Dir, To), member(To, RobotsPos).
+destination(Scenario, RobotsPos, From, Dir, To):- prochaineCase(Scenario, From, Dir, Temp), destination(Scenario, RobotsPos, Temp, Dir, To).
 
-destination(Scenario, RobotsPos, From, Dir, From):- prochaineCase(Scenario, From, Dir, To),
-													member(To, RobotsPos).
-
-destination(Scenario, RobotsPos, From, Dir, To):- prochaineCase(Scenario, From, Dir, Temp),
-												  destination(Scenario, RobotsPos, Temp, Dir, To).
 
 destinations(Scenario, RobotsPos, From, Dir, Tos):- bagof(To, destination(Scenario, RobotsPos, From, Dir, To), Tos).
 
