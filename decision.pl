@@ -54,10 +54,10 @@ listeObstaclesVerticaux([1,1,1,1], [[0,2],[1,3],[2,1],[6,3],[0,4],[3,7],[5,5],[3
 obstacleHorizontal(Scenario, Pos):- listeObstaclesHorizontaux(Scenario, L), member(Pos, L).
 obstacleVertical(Scenario, Pos):- listeObstaclesVerticaux(Scenario, L), member(Pos, L).
 
-direction(0, right).
-direction(1, left).
-direction(2, down).
-direction(3, up).
+direction(1, right).
+direction(3, left).
+direction(2, up).
+direction(4, down).
 
 inverseDirection(H, [up, down]):- member(H, [right, left]), !.
 inverseDirection(V, [left, right]):- member(V, [up, down]).
