@@ -59,12 +59,16 @@ direction(1, left).
 direction(2, down).
 direction(3, up).
 
+inverseDirection(H, [up, down]):- member(H, [right, left]), !.
+inverseDirection(V, [left, right]):- member(V, [up, down]).
+
+accessible1Robot(Scenario, From, Dir):- prochaineCase(Scenario, From, Dir, To), not(prochaineCase(Scenario, To, Dir, _)), !.
+accessible1Robot(Scenario, From, Dir):- prochaineCase(Scenario, From, Dir, To), inverseDirection(Dir, InvDir), member(InvDir1, InvDir), member(InvDir2, InvDir), InvDir1 \= InvDir2, prochaineCase(Scenario, To, InvDir1, _), not(prochaineCase(Scenario, To, InvDir2, _)), !.
 
 prochaineCase(Scenario, [FromX, FromY], right, [ToX, FromY]):- FromX < 15, ToX is FromX + 1, not(obstacleHorizontal(Scenario, [FromX, FromY])).
 prochaineCase(Scenario, [FromX, FromY], left, [ToX, FromY]):- FromX > 0, ToX is FromX - 1, not(obstacleHorizontal(Scenario, [ToX, FromY])).
 prochaineCase(Scenario, [FromX, FromY], down, [FromX, ToY]):- FromY < 15, ToY is FromY + 1, not(obstacleVertical(Scenario, [FromX, FromY])).
 prochaineCase(Scenario, [FromX, FromY], up, [FromX, ToY]):- FromY > 0, ToY is FromY - 1, not(obstacleVertical(Scenario, [FromX, ToY])).
-
 
 destination(Scenario, _, From, Dir, From):- not(prochaineCase(Scenario, From, Dir, _)).
 destination(Scenario, RobotsPos, From, Dir, From):- prochaineCase(Scenario, From, Dir, To), member(To, RobotsPos).
