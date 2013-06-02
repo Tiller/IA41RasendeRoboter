@@ -1,3 +1,32 @@
+/*
+
+
+  Définition de l'IA du joueur artificiel de Rasende Roboter
+
+
+*/
+
+
+:- module( decision, [
+	init/1,
+	move/2
+] ).
+
+
+init(_).
+
+%move( [S1, S2, S3, S4, NumCible, BX, BY, GX, GY, YX, YY, RX, RY], Path2 ) :- reverse([3,3,3,2,3,3,3,4], Path2), !.
+
+move([S1, S2, S3, S4, NumCible, BX, BY, GX, GY, YX, YY, RX, RY], Path2):-
+	nb_setval(scenario, [S1, S2, S3, S4]),
+	listeCibles([S1, S2, S3, S4], L),
+	nth0(NumCible, L, Target),
+	a_star([[[BX, BY], [GX, GY], [YX, YY], [RX, RY]], Target], Path),
+	changePath(Path, Path2),
+	!.
+
+move(_, []):- writeln('Fail'), !.
+
 listeCibles([0,0,0,0], [[7,5],[6,1],[9,10],[13,5],[6,13],[11,2],[5,4],[1,10],[14,13],[4,9],[9,1],[9,14],[1,3],[12,9],[2,14],[2,5],[10,7]]).
 listeCibles([0,0,0,1], [[7,5],[6,1],[12,9],[13,5],[6,13],[11,2],[5,4],[1,10],[14,13],[4,9],[9,1],[9,12],[1,3],[11,14],[2,14],[2,5],[10,7]]).
 listeCibles([0,0,1,0], [[7,5],[6,1],[9,10],[13,5],[3,9],[11,2],[5,4],[6,14],[14,13],[1,13],[9,1],[9,14],[1,3],[12,9],[5,11],[2,5],[10,7]]).
@@ -51,8 +80,13 @@ listeObstaclesVerticaux([1,1,0,1], [[0,3],[1,3],[0,4],[2,1],[6,3],[11,2],[15,1],
 listeObstaclesVerticaux([1,1,1,0], [[7,8],[8,8],[7,6],[8,6],[2,1],[0,2],[1,3],[0,4],[6,3],[11,2],[14,0],[15,3],[15,9],[12,8],[13,6],[10,6],[14,13],[9,13],[9,10],[6,13],[5,10],[1,13],[3,7],[3,9],[5,5]]).
 listeObstaclesVerticaux([1,1,1,1], [[0,2],[1,3],[2,1],[6,3],[0,4],[3,7],[5,5],[3,9],[5,10],[1,13],[6,13],[9,11],[11,14],[14,13],[12,8],[10,6],[13,6],[15,3],[15,1],[14,0],[11,2],[7,6],[8,6],[7,8],[8,8]]).
 
-obstacleHorizontal(Scenario, Pos):- listeObstaclesHorizontaux(Scenario, L), member(Pos, L).
-obstacleVertical(Scenario, Pos):- listeObstaclesVerticaux(Scenario, L), member(Pos, L).
+obstacleHorizontal(Pos):- 
+	nb_getval(scenario, Scenario),
+	listeObstaclesHorizontaux(Scenario, L), member(Pos, L), !.
+
+obstacleVertical(Pos):- 
+	nb_getval(scenario, Scenario),
+	listeObstaclesVerticaux(Scenario, L), member(Pos, L), !.
 
 direction(1, right).
 direction(3, left).
@@ -62,26 +96,204 @@ direction(4, down).
 inverseDirection(H, [up, down]):- member(H, [right, left]), !.
 inverseDirection(V, [left, right]):- member(V, [up, down]).
 
-accessible1Robot(Scenario, From, Dir):- prochaineCase(Scenario, From, Dir, To), not(prochaineCase(Scenario, To, Dir, _)), !.
-accessible1Robot(Scenario, From, Dir):- prochaineCase(Scenario, From, Dir, To), inverseDirection(Dir, InvDir), member(InvDir1, InvDir), member(InvDir2, InvDir), InvDir1 \= InvDir2, prochaineCase(Scenario, To, InvDir1, _), not(prochaineCase(Scenario, To, InvDir2, _)), !.
+accessible1Robot(From, Dir):- prochaineCase(From, Dir, To), not(prochaineCase(To, Dir, _)), !.
+accessible1Robot(From, Dir):- prochaineCase(From, Dir, To), inverseDirection(Dir, InvDir), member(InvDir1, InvDir), member(InvDir2, InvDir), InvDir1 \= InvDir2, prochaineCase(To, InvDir1, _), not(prochaineCase(To, InvDir2, _)), !.
 
-prochaineCase(Scenario, [FromX, FromY], right, [ToX, FromY]):- FromX < 15, ToX is FromX + 1, not(obstacleHorizontal(Scenario, [FromX, FromY])).
-prochaineCase(Scenario, [FromX, FromY], left, [ToX, FromY]):- FromX > 0, ToX is FromX - 1, not(obstacleHorizontal(Scenario, [ToX, FromY])).
-prochaineCase(Scenario, [FromX, FromY], down, [FromX, ToY]):- FromY < 15, ToY is FromY + 1, not(obstacleVertical(Scenario, [FromX, FromY])).
-prochaineCase(Scenario, [FromX, FromY], up, [FromX, ToY]):- FromY > 0, ToY is FromY - 1, not(obstacleVertical(Scenario, [FromX, ToY])).
+prochaineCase([FromX, FromY], right, [ToX, FromY]):- FromX < 15, ToX is FromX + 1, not(obstacleHorizontal([FromX, FromY])).
+prochaineCase([FromX, FromY], left, [ToX, FromY]):- FromX > 0, ToX is FromX - 1, not(obstacleHorizontal([ToX, FromY])).
+prochaineCase([FromX, FromY], down, [FromX, ToY]):- FromY < 15, ToY is FromY + 1, not(obstacleVertical([FromX, FromY])).
+prochaineCase([FromX, FromY], up, [FromX, ToY]):- FromY > 0, ToY is FromY - 1, not(obstacleVertical([FromX, ToY])).
 
-destination(Scenario, _, From, Dir, From):- not(prochaineCase(Scenario, From, Dir, _)).
-destination(Scenario, RobotsPos, From, Dir, From):- prochaineCase(Scenario, From, Dir, To), member(To, RobotsPos).
-destination(Scenario, RobotsPos, From, Dir, To):- prochaineCase(Scenario, From, Dir, Temp), destination(Scenario, RobotsPos, Temp, Dir, To).
+%destination(_, From, Dir, From):- not(prochaineCase(From, Dir, _)).
+%destination(RobotsPos, From, Dir, From):- prochaineCase(From, Dir, To), member(To, RobotsPos).
+%destination(RobotsPos, From, Dir, To):- prochaineCase(From, Dir, Temp), destination(RobotsPos, Temp, Dir, To).
 
-destinations(Scenario, RobotsPos, From, Dir, Tos):- bagof(To, destination(Scenario, RobotsPos, From, Dir, To), Tos).
+destination(_, From, Dir, From):- not(prochaineCase(From, Dir, _)), !.
+destination(RobotsPos, From, Dir, From):- prochaineCase(From, Dir, To), member(To, RobotsPos), !.
+destination(RobotsPos, From, Dir, To):- prochaineCase(From, Dir, Temp), destination(RobotsPos, Temp, Dir, To), !.
 
-
-
-
-
-% possibilites(Scenario, RobotsPos, [FromX, FromY], PosDirectes, Pos1Robot, Pos2Robots).
+destinations(RobotsPos, From, Dir, Tos):- bagof(To, destination(RobotsPos, From, Dir, To), Tos).
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+changePath([], []):- !.
+changePath([Robot, Dir | R], [Robot, NewDir | R2]):- changePath(R, R2), direction(NewDir, Dir).
+
+
+
+% State = [[BPos, GPos, YPos, RPos], Target]
+
+a_star(InitialState, Path):-
+	nb_setval(closedList, []),
+	nb_setval(openList, [[InitialState, [], 0, 0]]),
+	buildPath(Path).
+
+
+
+distance_manhattan([RobotsPos, Target], Path, H) :-
+	reverse(Path, [_, Robot|_]),
+	
+	nth0(Robot, RobotsPos, Pos),
+	distance_manhattan_simple(Pos, Target, H).
+	
+%	listPosToManhattan(RobotsPos, Target, Hs),
+%	min_list(Hs, H).
+%	
+%listPosToManhattan([], _, []).
+%listPosToManhattan([Robot|R], Target, [H|R2]) :-
+%	distance_manhattan_simple(Robot, Target, H),
+%	listPosToManhattan(R, Target, R2).
+	
+	
+	
+	
+distance_manhattan_simple([RobotX, RobotY], [TargetX, TargetY], H) :-
+	DX is RobotX - TargetX,
+	DY is RobotY - TargetY,
+	abs(DX, AX),
+	abs(DY, AY),
+	H is AX + AY.
+
+buildPath(Path):-
+	getBestNodeFromOpenList([State, Path, G, H]),
+	[RobotsPos, Target] = State,
+	member(Target, RobotsPos),
+	writeln('THE END'),
+	!.
+
+
+buildPath(FinalPath):-	
+	extractBestNodeFromOpenList([State, Path, G, H]),
+	getAllAccessibleStates(State, AccessibleStatesList, Path), 
+	insertAllStatesInOpenList(AccessibleStatesList, Path, G), 
+	buildPath(FinalPath),
+	!.
+
+
+
+insertAllStatesInOpenList([], _, _):- !.
+insertAllStatesInOpenList([Element|R], Path, G) :- insertStateInOpenList(Element, Path, G), !, insertAllStatesInOpenList(R, Path, G).
+insertAllStatesInOpenList([Element|R], Path, G) :- insertAllStatesInOpenList(R, Path, G).
+
+insertStateInOpenList([State, Move], Path, G) :-
+	nb_getval(closedList, ClosedList),
+	not(member(State, ClosedList)),
+	
+	distance_manhattan(State, Move, H),
+	G1 is G + 1,
+	append(Path, Move, NextPath),
+	F is G1 + H,
+	
+	nb_getval(openList, OpenList),
+	insertIn(OpenList, State, NextPath, G1, H, F, NewOpenList),
+	nb_setval(openList, NewOpenList).
+
+
+insertIn([], State, NextPath, G, H, _, [[State, NextPath, G, H]]).
+insertIn([[OState, OPath, OG, OH]|R], State, NextPath, G, H, F, [[State, NextPath, G, H],[OState, OPath, OG, OH]|R]):-
+	OF is OG + OH,
+	OF > F,
+	!.
+
+insertIn([E|R], State, NextPath, G, H, F, [E|R2]):-
+	insertIn(R, State, NextPath, G, H, F, R2).
+
+	
+	
+getBestNodeFromOpenList(Node):-
+	nb_getval(openList, [Node|List]).
+	
+
+	
+extractBestNodeFromOpenList(Node):-
+	nb_getval(openList, [Node|List]),
+	nb_delete(openList),
+	nb_setval(openList, List),
+	
+	[State|_] = Node,
+	nb_getval(closedList, ClosedList),
+	nb_setval(closedList, [State|ClosedList]).
+	
+	
+getAccessibleState([RobotsPos, Target], [[RobotsPos2, Target], [Robot, Dir]], []):-
+	length(RobotsPos, LenRobots),
+	LenRobotsMinusOne is LenRobots - 1, 
+	between(0, LenRobotsMinusOne, Robot),
+	nth0(Robot, RobotsPos, From),
+	direction(_, Dir),
+	
+	destination(RobotsPos, From, Dir, To),
+	To \= From,
+	
+	replace(RobotsPos, From, To, RobotsPos2).
+	
+	
+getAccessibleState([RobotsPos, Target], [[RobotsPos2, Target], [Robot, Dir]], [Robot|_]):-
+	%length(RobotsPos, LenRobots),
+	%LenRobotsMinusOne is LenRobots - 1, 
+	%between(0, LenRobotsMinusOne, Robot),
+	nth0(Robot, RobotsPos, From),
+	direction(_, Dir),
+	
+	destination(RobotsPos, From, Dir, To),
+	To \= From,
+	
+	replace(RobotsPos, From, To, RobotsPos2).
+
+
+
+replace([], _, _, []).
+replace([T|R], T, N, [N|R]):- !.
+replace([T|R], F, N, [T|R2]):- replace(R, F, N, R2).
+
+
+
+getAllAccessibleStates(State, AccessibleStatesList, Path):- 
+	bagof(NextState, getAccessibleState(State, NextState, Path), AccessibleStatesList).
+	
+	
+cul(State, AccessibleList):-
+	nb_setval(closedList, []),
+	nb_setval(openList, []),
+	nb_setval(scenario, [0,0,0,0]),
+	getAccessibleState(State, AccessibleList).
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
