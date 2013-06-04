@@ -23,7 +23,9 @@ move([S1, S2, S3, S4, NumCible, BX, BY, GX, GY, YX, YY, RX, RY], Path2):-
 	nb_setval(scenario, [S1, S2, S3, S4]),
 	listeCibles([S1, S2, S3, S4], L),
 	nth0(NumCible, L, Target),
-	a_star([[[BX, BY], [GX, GY], [YX, YY], [RX, RY]], RobotId, Target], Path),
+	
+	writeln(' '),
+	time(a_star([[[BX, BY], [GX, GY], [YX, YY], [RX, RY]], RobotId, Target], Path)),
 	
 	changePath(Path, Path2),
 	
