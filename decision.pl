@@ -116,22 +116,20 @@ inverseDirection(V, [left, right]):- member(V, [up, down]).
 accessible1Robot(From, Dir):- prochaineCase(From, Dir, To), not(prochaineCase(To, Dir, _)), !.
 accessible1Robot(From, Dir):- prochaineCase(From, Dir, To), inverseDirection(Dir, InvDir), member(InvDir1, InvDir), member(InvDir2, InvDir), InvDir1 \= InvDir2, prochaineCase(To, InvDir1, _), not(prochaineCase(To, InvDir2, _)), !.
 
-prochaineCase([FromX, FromY], right, [ToX, FromY]):- FromX < 15, ToX is FromX + 1, not(obstacleHorizontal([FromX, FromY])).
-prochaineCase([FromX, FromY], left, [ToX, FromY]):- FromX > 0, ToX is FromX - 1, not(obstacleHorizontal([ToX, FromY])).
-prochaineCase([FromX, FromY], down, [FromX, ToY]):- FromY < 15, ToY is FromY + 1, not(obstacleVertical([FromX, FromY])).
-prochaineCase([FromX, FromY], up, [FromX, ToY]):- FromY > 0, ToY is FromY - 1, not(obstacleVertical([FromX, ToY])).
+prochaineCase([FromX, FromY], right, [ToX, FromY]):- FromX < 15, ToX is FromX + 1, not(obstacleHorizontal([FromX, FromY])), !.
+prochaineCase([FromX, FromY], left, [ToX, FromY]):- FromX > 0, ToX is FromX - 1, not(obstacleHorizontal([ToX, FromY])), !.
+prochaineCase([FromX, FromY], down, [FromX, ToY]):- FromY < 15, ToY is FromY + 1, not(obstacleVertical([FromX, FromY])), !.
+prochaineCase([FromX, FromY], up, [FromX, ToY]):- FromY > 0, ToY is FromY - 1, not(obstacleVertical([FromX, ToY])), !.
 
-%destination(_, From, Dir, From):- not(prochaineCase(From, Dir, _)).
-%destination(RobotsPos, From, Dir, From):- prochaineCase(From, Dir, To), member(To, RobotsPos).
-%destination(RobotsPos, From, Dir, To):- prochaineCase(From, Dir, Temp), destination(RobotsPos, Temp, Dir, To).
+prochaineCase(RobotsPos, From, Dir, To):- prochaineCase(From, Dir, To), not(member(To, RobotsPos)), !.
 
-destination(_, From, Dir, From):- not(prochaineCase(From, Dir, _)), !.
-destination(RobotsPos, From, Dir, From):- prochaineCase(From, Dir, To), member(To, RobotsPos), !.
-destination(RobotsPos, From, Dir, To):- prochaineCase(From, Dir, Temp), destination(RobotsPos, Temp, Dir, To), !.
+destination(RobotsPos, From, Dir, From):- not(prochaineCase(RobotsPos, From, Dir, _)), !.
+destination(RobotsPos, From, Dir, To):- prochaineCase(RobotsPos, From, Dir, Temp), destination(RobotsPos, Temp, Dir, To), !.
 
 destinations(RobotsPos, From, Dir, Tos):- bagof(To, destination(RobotsPos, From, Dir, To), Tos).
 
-
+destinationWithHelp(RobotsPos, From, Dir, To, HelpPos):- prochaineCase(RobotsPos, From, Dir, To), accessible1Robot(To, Dir), prochaineCase(RobotsPos, To, Dir, HelpPos).
+destinationWithHelp(RobotsPos, From, Dir, To, HelpPos):- prochaineCase(RobotsPos, From, Dir, Tmp), destinationWithHelp(RobotsPos, Tmp, Dir, To, HelpPos).
 
 
 
@@ -267,13 +265,6 @@ setRobotPos([T|R], N, Pos, [T|L]):- N1 is N - 1, setRobotPos(R, N1, Pos, L).
 
 getAllAccessibleStates(State, AccessibleStatesList):- 
 	bagof(NextState, getAccessibleState(State, NextState), AccessibleStatesList).
-	
-	
-cul(State, AccessibleList):-
-	nb_setval(closedList, []),
-	nb_setval(openList, []),
-	nb_setval(scenario, [0,0,0,0]),
-	getAccessibleState(State, AccessibleList).
 	
 	
 	
