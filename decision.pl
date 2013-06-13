@@ -69,10 +69,12 @@ a_star(InitialState, Path, RobotsPos):-
 	
 % buildPath(-Path, -RobotPos)
 % Path is the path built with A* algorithm, RobotPos the last position of the robots
+%
+% if the robot is on the target
 buildPath(NewPath, RobotsPos2):-
 	getBestNodeFromOpenList([State, Path, G, _, Support]),
-	[RobotsPos, _, Target] = State,
-	member(Target, RobotsPos),
+	[RobotsPos, Robot, Target] = State,
+	nth0(Robot, RobotsPos, Target),
 
 	ifFail(
 		(
@@ -86,6 +88,7 @@ buildPath(NewPath, RobotsPos2):-
 	[RobotsPos2, _, _] = NewState,
 	!.
 	
+% usual buildPath
 buildPath(FinalPath, RobotsPos):-
 	extractBestNodeFromOpenList([State, Path, G, _, Support]),
 
@@ -221,6 +224,8 @@ insertAllStatesInOpenList([_|R], Path, G) :-
 	
 % preInsertStateInOpenList(+State, +Path, +G)
 % checks if State isn't in the closed list and corrects G if State needs a Support
+% 
+% if there is no support in the State
 preInsertStateInOpenList([State, [Robot, Dir, []]], Path, G):-
 	!,
 	nb_getval(closedList, ClosedList),
@@ -228,6 +233,7 @@ preInsertStateInOpenList([State, [Robot, Dir, []]], Path, G):-
 
 	insertStateInOpenList(State, [Robot, Dir], Path, G, []).
 
+% if the State needs a support
 preInsertStateInOpenList([State, [Robot, Dir, Support]], Path, G):-
 	nb_getval(closedList, ClosedList),
 	not(member(State, ClosedList)),
