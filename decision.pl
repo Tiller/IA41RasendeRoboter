@@ -10,7 +10,7 @@
 
 
 init(_):-
-	nb_setval(supportCost, 30).
+	nb_setval(supportCost, 9).
 
 	
 	
@@ -104,7 +104,7 @@ buildPath(FinalPath, RobotsPos):-
 
 	
 
-% searchForSupport(State, Path, G, ?, NewState, NewPath, NewG)
+% searchForSupport(+State, +Path, +G, +SupportNode, -NewState, -NewPath, -NewG)
 % if there is a need for a support, calculates its Path, G, and FinalState
 searchForSupport(State, Path, G, [], State, Path, G):- !.
 
