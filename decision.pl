@@ -1,5 +1,5 @@
 /*
-  Définition de l'IA du joueur artificiel de Rasende Roboter
+  Dï¿½finition de l'IA du joueur artificiel de Rasende Roboter
 */
 
 :- module( decision, [
@@ -15,6 +15,7 @@ init(_):-
 	
 	
 move([S1, S2, S3, S4, NumCible, BX, BY, GX, GY, YX, YY, RX, RY], Path2):-
+	% Calculates the robot id having the color of the target
 	Robot is (NumCible - 1) / 4,
 	floor(Robot, RobotId),
 
@@ -29,9 +30,11 @@ move([S1, S2, S3, S4, NumCible, BX, BY, GX, GY, YX, YY, RX, RY], Path2):-
 	time(
 		a_star([[[BX, BY], [GX, GY], [YX, YY], [RX, RY]], RobotId, Target], Path, _)
 	),
-
+	
+	% Converts [right, left, up, down] to [1, 2, 3, 4]
 	translatePath(Path, Path2),
-
+	
+	% Display
 	length(Path, LenPath),
 	NbMoves is LenPath / 2,
 	write('+ OK ('),
@@ -43,7 +46,8 @@ move([S1, S2, S3, S4, NumCible, BX, BY, GX, GY, YX, YY, RX, RY], Path2):-
 move([S1, S2, S3, S4, NumCible, BX, BY, GX, GY, YX, YY, RX, RY], []):-
 	targets([S1, S2, S3, S4], L),
 	nth0(NumCible, L, Target),
-
+	
+	% Display
 	writeln('- Fail'),
 	write('-   Scenario: '),
 	writeln([S1, S2, S3, S4]),
