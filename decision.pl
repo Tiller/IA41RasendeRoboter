@@ -96,6 +96,7 @@ buildPath(NewPath, RobotsPos2):-
 buildPath(FinalPath, RobotsPos):-
 	extractBestNodeFromOpenList([State, Path, G, _, Support]),
 
+	% Used to continue the exploration even if searchForSupport fails
 	ignore((
 		searchForSupport(State, Path, G, Support, NewState, NewPath, NewG),
 
@@ -138,7 +139,8 @@ supportPath([RobotsPos, Robot, Support], SupportPath, FinalRobotsPos):-
 
 	nb_setval(forbiddenRobots, [Robot|ForbiddenRobots]),
 	nb_setval(support, 0),
-
+	
+	% Used to restore globals values even if a_star fails
 	tryAndDo(
 		(
 			a_star([RobotsPos, -1, Support], SupportPath, FinalRobotsPos)
