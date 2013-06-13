@@ -1,5 +1,5 @@
 /*
-  D�finition de l'IA du joueur artificiel de Rasende Roboter
+  Définition de l'IA du joueur artificiel de Rasende Roboter
 */
 
 :- module( decision, [
